@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
-
+    int [] barajaDinamica = new int [129];
     int [] arreglo1 = new int [128];
     int [] arreglo2 = new int[128];
     int [] arreglo3 = new int[128];
@@ -31,13 +31,18 @@ public class Main {
             System.out.println("2-salir");
             opc1 = leer.nextInt();
             if (opc1 == 1) {
-                System.out.println("ingresa numero de jugadores");
+                System.out.println("ingresa numero de jugadores(minimo 1 y maximo 4)");
                 numJ = leer.nextInt();
                 int pb = 4 - numJ;
-                if (numJ <= 4) {
-                    System.out.println("ingresa numero de bots (min 0 y maximo" + pb + ")");
-                    nbot = leer.nextInt();
-                    if (nbot <= pb) {
+                if (numJ>0 && numJ <= 4) {
+                    if(numJ<=3) {
+                        System.out.println("ingresa numero de bots (min 0 y maximo " + pb + ")");
+                        nbot = leer.nextInt();
+                    }
+                    else{
+                        nbot=0;
+                    }
+                    if (nbot <= pb && nbot>=0) {
                         main2.numero_jugadores();
                         main2.jugar_normal(numJ,nbot,turno,ronda,sentido);
                     } else {
@@ -60,6 +65,7 @@ public class Main {
 
     public  void numero_jugadores(){
         for(int i=0;i<128;i++){
+            barajaDinamica[i]=-5;
             arreglo1[i]=-5;
             arreglo2[i]=-5;
             arreglo3[i]=-5;
@@ -74,12 +80,15 @@ public class Main {
         //10 reversa
         //11 no juegas
         int barajaCompleta[]= new int[129];
-        int barajaDinamica[]= new int[129];
+
         int a;
         int value = -5;
         int t = 0;
 
         if(ronda==1){
+            for (int i = 0; i <barajaCompleta.length; i++) {
+                barajaCompleta[i] = -5;
+            }
             int x = 0;
             for (int i = 1; i < 121; i++) {
                 barajaCompleta[i] = x;
@@ -93,17 +102,17 @@ public class Main {
             for (int i = 121; i < 125; i++) {
                 barajaCompleta[i] = 10;
             }
-            for (int i = 125; i < 129; i++) {
+            for (int i = 125; i <= 128; i++) {
                 barajaCompleta[i] = 11;
             }
             Arrays.sort(barajaCompleta);
-            for (int i = 1; i < 129; i++) {
+            for (int i = 1; i <= 128; i++) {
                 barajaDinamica[i]=barajaCompleta[i];
             }
 
         }
         while(t==0) {//baraja del jugador
-            a = (int) (Math.random() * 128 + 1);
+            a = (int) (Math.random() * 120 + 1);
             t++;
             if (barajaDinamica[a] != -5) {
                 value = barajaDinamica[a];
@@ -120,7 +129,7 @@ public class Main {
     public void cartasInicio(int arreglo[]){
         int a;
         int ronda=1;
-        for(int i=0;i<7;i++){
+        for(int i=1;i<8;i++){
             a=dame_carta(ronda);
             arreglo[i]=a;
         }
@@ -154,243 +163,312 @@ public class Main {
 
     public void jugar_normal(int numJ,int nbot,int turno,int ronda,int sentido) {
         int ganador = 0;//0 es que no hay ganador
-        sentido=0;
+        sentido = 0;//
 
-        if (ronda==1){
+        if (ronda == 1) {
             cartasInicio(arreglo1);
-            if(numJ>=2){
+            if (numJ >= 2) {
                 cartasInicio(arreglo2);
-                if (numJ >= 3){
+                if (numJ >= 3) {
                     cartasInicio(arreglo3);
                 }
-                if (numJ == 4){
+                if (numJ == 4) {
                     cartasInicio(arreglo4);
                 }
-                if (nbot >= 1){
+                if (nbot >= 1) {
                     cartasInicio(arreglo5);
                 }
-                if (nbot>=2){
+                if (nbot >= 2) {
                     cartasInicio(arreglo6);
-                }if (nbot>=3){
+                }
+                if (nbot >= 3) {
                     cartasInicio(arreglo7);
                 }
             }
         }
 
         while (ganador == 0) {
-            switch (turno) {
-                case 1:
-                    System.out.println("turno "+turno);
-                        sentido=juegoPlayer(arreglo1, ronda,sentido);
-                        ganador=terminarJuego(arreglo1);
-                    if (sentido==1){
-                        jugar_inverso(numJ,nbot,turno,ronda,sentido);
+ronda++;
+            if (turno == 1) {
+                System.out.println("turno jugador 1");
+                sentido = juegoPlayer(arreglo1, ronda, sentido);
+                ganador = terminarJuego(arreglo1);
+                if (sentido == 1) {
+                    jugar_inverso(numJ, nbot, turno, ronda, sentido);
+                }
+                if (ultimaCarta == 11) {
+                    turno++;
+                }
+                turno++;
+            } else if (turno == 2) {
+                if (nbot >= 1) {
+                    System.out.println("turno bot 1");
+                    sentido = juegoBot(arreglo5, ronda, sentido);
+                    ganador = terminarJuego(arreglo5);
+                    if (sentido == 1) {
+                        jugar_inverso(numJ, nbot, turno, ronda, sentido);
                     }
+                    if (ultimaCarta == 11) {
                         turno++;
-                    ronda++;
-                    break;
-                case 2:
-                    System.out.println("turno "+turno);
-                    if(nbot>=1) {
-                        sentido=juegoBot(arreglo5, ronda,sentido);
-                        ganador=terminarJuego(arreglo5);
-                        if (sentido==1){
-                            jugar_inverso(numJ,nbot,turno,ronda,sentido);
-                        }
                     }
-                    turno++;
-                    break;
-                case 3:
-                    System.out.println("turno "+turno);
-                    if(numJ>=2) {
-                        sentido=juegoPlayer(arreglo2, ronda,sentido);
-                        ganador=terminarJuego(arreglo2);
-                        if (sentido==1){
-                            jugar_inverso(numJ,nbot,turno,ronda,sentido);
-                        }
+                }
+                turno++;
+            } else if (turno == 3) {
+                if (numJ >= 2) {
+                    System.out.println("turno jugador 2");
+                    sentido = juegoPlayer(arreglo2, ronda, sentido);
+                    ganador = terminarJuego(arreglo2);
+                    if (sentido == 1) {
+                        jugar_inverso(numJ, nbot, turno, ronda, sentido);
                     }
-                    turno++;
-                    break;
-                case 4:
-                    System.out.println("turno "+turno);
-                    if(nbot>=2) {
-                        sentido=juegoBot(arreglo6, ronda,sentido);
-                        ganador=terminarJuego(arreglo6);
-                        if (sentido==1){
-                            jugar_inverso(numJ,nbot,turno,ronda,sentido);
-                        }
+                    if (ultimaCarta == 11) {
+                        turno++;
                     }
-                    turno++;
-                    break;
-                case 5:
-                    System.out.println("turno "+turno);
-                    if(numJ>=3) {
-                        sentido=juegoPlayer(arreglo3, ronda,sentido);
-                        ganador=terminarJuego(arreglo3);
-                        if (sentido==1){
-                            jugar_inverso(numJ,nbot,turno,ronda,sentido);
-                        }
+                }
+                turno++;
+            } else if (turno == 4) {
+                if (nbot >= 2) {
+                    System.out.println("turno bot 2");
+                    sentido = juegoBot(arreglo6, ronda, sentido);
+                    ganador = terminarJuego(arreglo6);
+                    if (sentido == 1) {
+                        jugar_inverso(numJ, nbot, turno, ronda, sentido);
                     }
-                    turno++;
-                    break;
-                case 6:
-                    System.out.println("turno "+turno);
-                    if(nbot==3) {
-                        sentido=juegoBot(arreglo7, ronda,sentido);
-                        ganador=terminarJuego(arreglo7);
-                        if (sentido==1){
-                            jugar_inverso(numJ,nbot,turno,ronda,sentido);
-                        }
+                    if (ultimaCarta == 11) {
+                        turno++;
                     }
-                    turno++;
-                    break;
-                case 7:
-                    System.out.println("turno "+turno);
-                    if(numJ>=4) {
-                        sentido=juegoPlayer(arreglo4, ronda,sentido);
-                        ganador=terminarJuego(arreglo4);
-                        if (sentido==1){
-                            jugar_inverso(numJ,nbot,turno,ronda,sentido);
-                        }
+                }
+                turno++;
+            } else if (turno == 5) {
+                if (numJ >= 3) {
+                    System.out.println("turno jugador 3");
+                    sentido = juegoPlayer(arreglo3, ronda, sentido);
+                    ganador = terminarJuego(arreglo3);
+                    if (sentido == 1) {
+                        jugar_inverso(numJ, nbot, turno, ronda, sentido);
                     }
-                    turno=1;
-                    break;
-                default:
-                    turno = 1;
+                    if (ultimaCarta == 11) {
+                        turno++;
+                    }
+                }
+                turno++;
+            } else if (turno == 6) {
+                if (nbot == 3) {
+                    System.out.println("turno bot 3");
+                    sentido = juegoBot(arreglo7, ronda, sentido);
+                    ganador = terminarJuego(arreglo7);
+                    if (sentido == 1) {
+                        jugar_inverso(numJ, nbot, turno, ronda, sentido);
+                    }
+                    if (ultimaCarta == 11) {
+                        turno++;
+                    }
+                }
+                turno++;
+            } else if (turno == 7) {
+                if (numJ >= 4) {
+                    System.out.println("turno jugador 4");
+                    sentido = juegoPlayer(arreglo4, ronda, sentido);
+                    ganador = terminarJuego(arreglo4);
+                    if (sentido == 1) {
+                        jugar_inverso(numJ, nbot, turno, ronda, sentido);
+                    }
+                    if (ultimaCarta == 11) {
+                        turno = 1;
+                    }
+                }
+                turno++;
+            } else {
+                turno = 1;
             }
-
         }
     }
 
-    public void jugar_inverso(int numJ,int nbot, int turno, int ronda,int sentido){
-        switch(turno) {
-            case 1:
-                System.out.println("turno "+turno);
-                sentido=juegoPlayer(arreglo1,ronda,sentido);
-                terminarJuego(arreglo1);
-                if (sentido==0){
-                    jugar_normal(numJ,nbot,turno,ronda,sentido);
+    public void jugar_inverso(int numJ,int nbot, int turno, int ronda,int sentido) {
+        int ganador = 0;//0 es que no hay ganador
+        while (ganador==0) {
+            ronda++;
+            if (turno == 1) {
+                System.out.println("turno jugador1");
+                sentido = juegoPlayer(arreglo1, ronda, sentido);
+                ganador = terminarJuego(arreglo1);
+                if (sentido == 0) {
+                    jugar_normal(numJ, nbot, turno, ronda, sentido);
                 }
-                turno=7;
-                break;
-            case 2:
-                System.out.println("turno "+turno);
-                if(nbot>=1) {
-                    sentido=juegoBot(arreglo5, ronda,sentido);
+                turno = 7;
+                if (ultimaCarta == 11) {
+                    turno = 6;
+                }
+            } else if (turno == 2) {
+                if (nbot >= 1) {
+                    System.out.println("turno bot1");
+                    sentido = juegoBot(arreglo5, ronda, sentido);
                     terminarJuego(arreglo5);
-                }
-                turno--;
-                break;
-            case 3:
-                System.out.println("turno "+turno);
-                if(numJ>=2) {
-                    sentido=juegoPlayer(arreglo2, ronda,sentido);
-                    terminarJuego(arreglo2);
-                }
-                turno--;
-                break;
-            case 4:
-                System.out.println("turno "+turno);
-                if(nbot>=2) {
-                    sentido=juegoBot(arreglo6, ronda,sentido);
-                    terminarJuego(arreglo6);
-                }
                     turno--;
-                break;
-            case 5:
-                System.out.println("turno "+turno);
-                if(numJ>=3) {
-                    sentido=juegoPlayer(arreglo3, ronda,sentido);
+                    if (ultimaCarta == 11) {
+                        turno--;
+                    }
+                }
+            } else if (turno == 3) {
+                if (numJ >= 2) {
+                    System.out.println("turno jugador 2");
+                    sentido = juegoPlayer(arreglo2, ronda, sentido);
+                    terminarJuego(arreglo2);
+                    if (ultimaCarta == 11) {
+                        turno--;
+                    }
+                }
+                turno--;
+            } else if (turno == 4) {
+                if (nbot >= 2) {
+                    System.out.println("turno bot 2");
+                    sentido = juegoBot(arreglo6, ronda, sentido);
+                    terminarJuego(arreglo6);
+                    if (ultimaCarta == 11) {
+                        turno--;
+                    }
+                }
+                turno--;
+            } else if (turno == 5) {
+                if (numJ >= 3) {
+                    System.out.println("turno jugador 3");
+                    sentido = juegoPlayer(arreglo3, ronda, sentido);
                     terminarJuego(arreglo3);
+                    if (ultimaCarta == 11) {
+                        turno--;
+                    }
                 }
                 turno--;
-                break;
-            case 6:
-                System.out.println("turno "+turno);
-                if(nbot==3) {
-                    sentido=juegoBot(arreglo7, ronda,sentido);
+            } else if (turno == 6) {
+                if (nbot == 3) {
+                    System.out.println("turno bot 3");
+                    sentido = juegoBot(arreglo7, ronda, sentido);
                     terminarJuego(arreglo7);
+                    if (ultimaCarta == 11) {
+                        turno--;
+                    }
                 }
                 turno--;
-                break;
-            case 7:
-                System.out.println("turno "+turno);
-                if(numJ>=4) {
-                    sentido=juegoPlayer(arreglo4, ronda,sentido);
+            } else if (turno == 7) {
+                if (numJ >= 4) {
+                    System.out.println("turno jugador 4");
+                    sentido = juegoPlayer(arreglo4, ronda, sentido);
                     terminarJuego(arreglo4);
+                    if (ultimaCarta == 11) {
+                        turno--;
+                    }
                 }
                 turno--;
-                break;
-            default:
-            turno=7;
+            } else {
+                turno = 7;
+            }
+
         }
     }
     public int juegoPlayer(int[] arreglo,int ronda, int sentido){
-    Scanner leer=new Scanner(System.in);
+        Scanner leer=new Scanner(System.in);
         int a = 0;
-        int cartaJ;
+        int posibletirada=1;
+        int cartaJ;//carta elegida por el jugador
         int g;
         int respVC=1;//valor que dice si la carta existe
         int huboCarta=1;
-        int nc=0;
-        if(ronda==1){
-            System.out.println("");
-            nc=imprimeCartas(arreglo);
-            System.out.println("\nque carta desea tirar?");
-            cartaJ= leer.nextInt();
-            respVC=validaExiste(arreglo,cartaJ);
-            if (respVC==0){
-                    System.out.println("carta valida");
-                    ultimaCarta=cartaJ;
-                    huboCarta=0;
-                    if(ultimaCarta==10){
-                        if(sentido==1){
-                            sentido=0;
-
-                        }
-                        else{
-                            sentido=1;
-                        }
-
-                    }
-            }
-        }
-        else if(ronda!=1){
-            nc=imprimeCartas(arreglo);
-            System.out.println("que carta desea tirar?");
-            cartaJ= leer.nextInt();
-            respVC=validaExiste(arreglo,cartaJ);
-            if (respVC==0){
-                if (cartaJ == ultimaCarta || cartaJ == ultimaCarta + 1 || cartaJ == ultimaCarta - 1 && cartaJ != -5 || cartaJ == 10 || cartaJ == 11|| cartaJ == 9 && ultimaCarta==0 || cartaJ == 0&& ultimaCarta==9) {
-                    nc=imprimeCartas(arreglo);
-                    System.out.println("carta valida");
-                    ultimaCarta=cartaJ;
-                    huboCarta=0;
-                    if(ultimaCarta==10){
-                        if(sentido==1){
-                            sentido=0;
-                        }
-                        else{
-                            sentido=1;
-                        }
-                    }
+        int nc=0;//numero de cartas
+        for(int i=0;i<128;i++) {
+            if (arreglo[i] != -1) {
+                cartaJ = arreglo[i];
+                int comp = comparador(cartaJ);
+                if (comp == 0) {
+                    posibletirada=0;
                 }
             }
         }
+                if (ronda == 2) {
+                    int b=0;
+                        while (b==0) {
+                            System.out.println("");
+                            nc = imprimeCartas(arreglo);
+                            System.out.println("\nque carta desea tirar?");
+                            cartaJ = leer.nextInt();
+                            respVC = validaExiste(arreglo, cartaJ);
+                            if (respVC == 0) {
+                            ultimaCarta = cartaJ;
+                            huboCarta = 0;
+                            b=1;
+                            if (ultimaCarta == 10) {
+                                if (sentido == 1) {
+                                    sentido = 0;
 
+                                } else {
+                                    sentido = 1;
+                                }
+                            }
+                        }
+                            else{
+                                System.out.println("vuelve a tirar");
+                            }
+                        }
+                }
+                else if (ronda != 2) {
+                    if(posibletirada==0) {
+                        int b = 0;
+                        while (b == 0) {
+                            System.out.println("\nla ultima carta tirada es: " + ultimaCarta);
+                            nc = imprimeCartas(arreglo);
+                            System.out.println("que carta desea tirar?");
+                            cartaJ = leer.nextInt();
+                            int comp = comparador(cartaJ);
+                            if (comp == 0) {
+                                respVC = validaExiste(arreglo, cartaJ);
+                                if (respVC == 0) {
+                                    b = 1;
+                                    nc = imprimeCartas(arreglo);
+                                    System.out.println("carta valida");
+                                    ultimaCarta = cartaJ;
+                                    huboCarta = 0;
+                                    if (ultimaCarta == 10) {
+                                        if (sentido == 1) {
+                                            sentido = 0;
+                                        } else {
+                                            sentido = 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        huboCarta=1;
+                    }
+                }
+if(huboCarta==1){
+   int b=0;
+    System.out.println("no tiene posibles cartas, dando una");
+    a=dame_carta(ronda);
+    for(int i=1;i<128;i++){
+        if (b==0) {
+            if (arreglo[i] == -5) {
+                arreglo[i] = a;
+                nc++;
+            b=1;
+            }
+        }
+    }
+    System.out.println();
+}
         cartasRestantes(nc);
-           return sentido;
+        return sentido;
     }
     public int juegoBot(int[] arreglo, int ronda, int sentido){
         int huboCarta=0;
         int a;
         int nc=0;
         for(int i=0;i<128;i++){
-            if (arreglo[i]!=-1) {
+            if (arreglo[i]!=-5) {
 
                 if (arreglo[i] == ultimaCarta || arreglo[i] == ultimaCarta + 1 || arreglo[i] == ultimaCarta - 1 && arreglo[i] != -5 || arreglo[i] == 10 || arreglo[i] == 11|| arreglo[i] == 9 && ultimaCarta==0 || arreglo[i] == 0&& ultimaCarta==9) {
                     nc=imprimeCartas(arreglo);
-                    System.out.println("carta valida");
+                    System.out.println("\ncarta valida");
                     ultimaCarta=arreglo[i];
                     huboCarta=0;
                     if(ultimaCarta==10){
@@ -408,7 +486,7 @@ public class Main {
             System.out.println("el boot no tiene carta, pido nueva");
             a=1;
             for (int i = 0; i < 120; i++) {
-                if (arreglo[i] == -1) {
+                if (arreglo[i] == -5) {
                     if (a == 1) {
                         arreglo[i] = dame_carta(ronda);
                         huboCarta=1;
@@ -422,17 +500,69 @@ public class Main {
 
     public int terminarJuego(int[] arreglo){
         for(int i=0; i<arreglo.length; i++){
-            if (arreglo[i]!=-1){
+            if (arreglo[i]!=-5){
                 return 0;
             }
         }
         return 1;
     }
+    //regresa 1 si no cumple
+    public int comparador(int carta){
+        if (carta == ultimaCarta || carta == ultimaCarta + 1 || carta == ultimaCarta - 1 && carta != -5 || carta == 10 || carta == 11|| carta == 9 && ultimaCarta==0 || carta == 0&& ultimaCarta==9) {
+            return 0;
+        }
+
+        return 1;
+    }
     public void cartasRestantes(int nc){
-        System.out.print("las cartas restantes son: ");
-        for(int n=0;n<=nc;n++){
+        System.out.print("las cartas restantes son: "+(nc-1)+" ");
+        for(int n=1;n<nc;n++){
             System.out.print("x " );
         }
+        System.out.println(" ");
     }
 
-    }
+}
+
+//
+//                      `;-.          ___,
+//  `.`\_...._/`.-"`
+//    \        /      ,
+//    /()   () \    .' `-._
+//   |)  .    ()\  /   _.'
+//   \  -'-     ,; '. <
+//    ;.__     ,;|   > \
+//   / ,    / ,  |.-'.-'
+//  (_/    (_/ ,;|.<`
+//    \    ,     ;-`
+//     >   \    /
+//    (_,-'`> .'
+//jgs      (_,'
+//
+//       \:.             .:/
+//        \``._________.''/
+//         \             /
+// .--.--, / .':.   .':. \
+///__:  /  | '::' . '::' |
+//   / /   |`.   ._.   .'|
+//  / /    |.'         '.|
+// /___-_-,|.\  \   /  /.|
+//      // |''\.;   ;,/ '|
+//      `==|:=         =:|
+//         `.          .'
+//           :-._____.-:
+//          `''       `''
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
